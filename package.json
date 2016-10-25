@@ -1,0 +1,26 @@
+{
+  "name": "week2",
+  "private": true,
+  "scripts": {
+    "start": "meteor run"
+  },
+  "dependencies": {
+    "lodash": "^4.16.4",
+    "meteor-node-stubs": "~0.2.0",
+    "react": "^15.3.2",
+    "react-addons-pure-render-mixin": "^15.3.2",
+    "react-dom": "^15.3.2",
+    "react-router": "^2.8.1",
+    "react-simple-parallax": "^0.2.6"
+  },
+  "devDependencies": {
+    "postcss-cssnext": "^2.8.0",
+    "postcss-nested": "^1.0.0"
+  },
+  "postcss": {
+    "plugins": {
+      "postcss-cssnext": {},
+      "postcss-nested": {}
+    }
+  }
+}
