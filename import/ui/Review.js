@@ -8,6 +8,26 @@ import { Reviews, AllReviews } from '../api/reviews.js';
 
 export const ignore = ["and", "the", "to", "back", "before", "after", "a", "an", "of", "for", "as", "i", "with", "it", "is", "on", "that", "this", "can", "in", "be", "has", "have", "if", "we", "are", "am", "is", "they", "he", "she", "there", "was", "you", "not", "many", "although", "though", "even", "very", "really", "would", "will", "cant", "can't", "won't", "wont", "-", "at", "under", "over", "but", "also", "via", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0"];
 
+export class HolidayInn extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+
+  render() {
+    return (
+      <div className="head">
+        <img src="http://r-ec.bstatic.com/images/hotel/840x460/137/13767830.jpg" alt="" />
+        <div className="intro">
+          <h2>Holiday Inn Express</h2>
+          <h3>83 Jervois Street, Sheung Wan, Hong Kong 00000, China</h3>
+          <h3>00 1 877-859-5095</h3>
+          <h4>The data is collected from TripAdvisor</h4>
+        </div>
+      </div>
+    );
+  }
+}
+
 export class ReviewList extends React.Component {
   constructor(props) {
     super(props);
@@ -19,7 +39,6 @@ export class ReviewList extends React.Component {
       room: 0,
       breakfast: 0,
       clean: 0,
-      refresh: false,
     }
   }
 
@@ -194,15 +213,8 @@ export class ReviewList extends React.Component {
 
     return (
       <div className="reviews-container">
-        <div className="head">
-          <img src="http://r-ec.bstatic.com/images/hotel/840x460/137/13767830.jpg" alt="" />
-          <div className="intro">
-            <h2>Holiday Inn Express</h2>
-            <h3>83 Jervois Street, Sheung Wan, Hong Kong 00000, China</h3>
-            <h3>00 1 877-859-5095</h3>
-            <h4>The data is collected from TripAdvisor</h4>
-          </div>
-        </div>
+
+        {this.props.children}
 
         <div className="review-wrap">
           <ul>
