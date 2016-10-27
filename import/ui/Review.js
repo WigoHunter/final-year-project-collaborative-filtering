@@ -103,7 +103,7 @@ export class ReviewList extends React.Component {
       }
     }
 
-    const totalDoc = Reviews.find({}).fetch().length + 70; //70 is the origin size of dataset
+    const totalDoc = Reviews.find({}).fetch().length + 80; //80 is the origin size of dataset
 
     //score formula: word frequency * log (total documents / documents with the word)
     for(let i = 0; i < analysis.length; i++) {
@@ -117,6 +117,7 @@ export class ReviewList extends React.Component {
     Reviews.insert({
       title,
       text,
+      for: location.pathname.split("/")[2],
       analysis,
       createdAt: new Date(),
     });
@@ -199,7 +200,7 @@ export class ReviewList extends React.Component {
   }
 
   render() {
-    let reviews = this.props.reviews;
+    let reviews = this.props.reviews.filter((a) => (a.for === location.pathname.split("/")[2]));
     for(let i = 0; i < reviews.length; i++){
       let location = reviews[i].analysis.find((a) => (a.word === 'location')) ? reviews[i].analysis.find((a) => (a.word === 'location')).score : 0;
       let hotel = reviews[i].analysis.find((a) => (a.word === 'hotel')) ? reviews[i].analysis.find((a) => (a.word === 'hotel')).score : 0;
@@ -214,7 +215,7 @@ export class ReviewList extends React.Component {
     return (
       <div className="reviews-container">
 
-        {this.props.children}
+        {React.cloneElement(this.props.children, { test: "test" })}
 
         <div className="review-wrap">
           <ul>
@@ -241,6 +242,10 @@ export class ReviewList extends React.Component {
             type="text"
             ref="title"
             placeholder="Title"
+          />
+          <input
+            type="text"
+            ref="target"
           />
           <textarea
             ref="review"
