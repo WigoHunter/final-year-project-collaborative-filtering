@@ -11,12 +11,17 @@
 body {
   margin: 0;
   font-family: 'Open Sans', sans-serif;
-  background: url("http://subtlepatterns2015.subtlepatterns.netdna-cdn.com/patterns/brickwall.png");
+  background: url("/brickwall.png");
   background-attachment: fixed;
 }
 
 a {
+  color: inherit;
   text-decoration: none;
+}
+
+#login-buttons a, .accounts-dialog a {
+  text-decoration: none !important;
 }
 
 .navi {
@@ -287,6 +292,10 @@ form input[type='submit'] {
   align-items: center;
   justify-content: center;
   position: relative;
+  overflow: auto;
+  padding-top: 350px;
+  padding-bottom: 20px;
+  box-sizing: border-box;
 }
 
 .modal h2 {
@@ -307,7 +316,9 @@ form input[type='submit'] {
 }
 
 .modal .close:hover {
-  transform: rotate(225deg);
+  font-size: 36px;
+  top: 8px;
+  right: 8px;
 }
 
 .modal .pref {
@@ -344,4 +355,75 @@ form input[type='submit'] {
   position: absolute;
   bottom: 10px;
   display: none;
+}
+
+.home .head {
+  flex-direction: column;
+  height: 300px;
+  justify-content: center;
+}
+
+.home .head h2 {
+  color: var(--blue);
+  align-self: center;
+  margin-bottom: 5px;
+}
+
+.home .head p {
+  align-self: center;
+  margin: 0;
+}
+
+.home .hotel-list {
+  padding: 0 10%;
+}
+
+.home .hotel-list .hotel {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: row;
+  margin:0 0 50px;
+  background-color: #FFF;
+  padding: 30px;
+  box-shadow: 3px 3px 3px 1px rgba(0, 0, 0, 0.2);
+  transition: all 0.15s ease;
+}
+
+.home .hotel-list .hotel:hover {
+  transform: scale(1.01);
+  box-shadow: 3px 3px 3px 1px rgba(0, 0, 0, 0.4);
+}
+
+.home .hotel-list .hotel .pic {
+  width: 450px;
+}
+
+.home .hotel-list .hotel .pic img {
+  width: 100%;
+  height: 275px;
+}
+
+.home .hotel-list .hotel .desc {
+  box-sizing: border-box;
+  margin-left: 50px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.home .hotel-list .hotel .desc h2,
+.home .hotel-list .hotel .desc h3 {
+  margin: 0;
+}
+
+.home .hotel-list .hotel .desc h2 {
+  color: var(--darkBlue);
+  margin-bottom: 15px;
+}
+
+.home .hotel-list .hotel .desc h3 {
+  margin: 2px 0;
+  font-weight: normal;
+  font-size: 16px;
 }

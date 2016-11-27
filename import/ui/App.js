@@ -1,8 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Link } from 'react-router';
-import Parallax from 'react-simple-parallax';
 import { createContainer } from 'meteor/react-meteor-data';
+
+import AccountsUIWrapper from './Accounts.js';
 
 import { Todos } from '../api/todos.js';
 
@@ -11,8 +12,8 @@ const App = ({ children }) => (
     <div className="navi">
       <h3>FYP - Personalised Review System</h3>
       <ul>
-        <Link to="/text-analysis"><li>Text Analysis</li></Link>
-        <Link to="/todo"><li>Todo</li></Link>
+        <li><AccountsUIWrapper /></li>
+        <Link to="/"><li>Home</li></Link>
       </ul>
     </div>
     <div className="content">
@@ -23,58 +24,37 @@ const App = ({ children }) => (
 
 export default App;
 
-
-//TESTING
-
-
-export class TodoList extends React.Component {
-  handleSubmit(event) {
-    //prevent actual default submission
-    event.preventDefault();
-
-    //Find the input
-    const text = ReactDOM.findDOMNode(this.refs.input).value;
-
-    //Push to DB
-    Todos.insert({
-      text,
-      createdAt: new Date(),
-    });
-
-    //Clear form
-    ReactDOM.findDOMNode(this.refs.input).value = '';
-  }
-
-  render() {
-    return (
-      <div className="list-container">
-        <form onSubmit={this.handleSubmit.bind(this)}>
-          <input
-            type="text"
-            ref="input"
-            placeholder="New todo?"
-          />
-        </form>
-        <ul>
-          {this.props.todos.map((todo) => (
-            <Todo text={todo.text} />
-          ))}
-        </ul>
-      </div>
-    );
-  }
-}
-
-TodoList.propTypes = {
-  todos: React.PropTypes.array.isRequired,
-};
-
-export const TodoListContainer = createContainer(() => {
-  return {
-    todos: Todos.find({}).fetch(),
-  }
-}, TodoList);
-
-const Todo = ({ text }) => (
-  <li>{text}</li>
+export const Home = ({}) => (
+  <div className="home">
+    <div className="head">
+      <h2>Final Year Project</h2>
+      <p>- Personalised Review System -</p>
+    </div>
+    <ul className="hotel-list">
+      <Link to="/text-analysis/holiday-inn">
+        <li className="hotel">
+          <div className="pic">
+            <img src="http://r-ec.bstatic.com/images/hotel/840x460/137/13767830.jpg" />
+          </div>
+          <div className="desc">
+            <h2>Holiday Inn Express</h2>
+            <h3>83 Jervois Street, Sheung Wan, Hong Kong 00000, China</h3>
+            <h3>00 1 877-859-5095</h3>
+          </div>
+        </li>
+      </Link>
+      <Link to="/text-analysis/shangri-la">
+        <li className="hotel">
+          <div className="pic">
+            <img src="https://cdn.kiwicollection.com/media/property/PR002772/xl/002772-01-suite-living-area-city-water-view.jpg" />
+          </div>
+          <div className="desc">
+            <h2>Shangri-La Hong Kong</h2>
+            <h3>64 Mody Road | Tsim Sha Tsui East, Kowloon, Hong Kong, China</h3>
+            <h3>00 1 877-859-5095</h3>
+          </div>
+        </li>
+      </Link>
+    </ul>
+  </div>
 );

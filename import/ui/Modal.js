@@ -16,3 +16,103 @@ export class Modal extends React.Component {
     );
   }
 }
+
+export class UserPreferenceControl extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+
+  render() {
+    return (
+      <div>
+        <Modal open={this.props.openModal}>
+          <span className="close" onClick={this.props.handleClose}>＋</span>
+          <h2>User Behavior</h2>
+          <div>
+            <div
+              className="pref"
+              style={{opacity: 0.4 + this.props.hotel * 0.3}}
+              onClick={this.props.clickHotal}
+            >
+              <p>Hotel</p>
+              {this.props.hotel}
+            </div>
+            <div
+              className="pref"
+              style={{opacity: 0.4 + this.props.location * 0.3}}
+              onClick={this.props.clickLocation}
+            >
+              <p>Location</p>
+              {this.props.location}
+            </div>
+            <div
+              className="pref"
+              style={{opacity: 0.4 + this.props.room * 0.3}}
+              onClick={this.props.clickRoom}
+            >
+              <p>Room</p>
+              {this.props.room}
+            </div>
+            <div
+              className="pref"
+              style={{opacity: 0.4 + this.props.breakfast * 0.3}}
+              onClick={this.props.clickBreakfast}
+            >
+              <p>Breakfast</p>
+              {this.props.breakfast}
+            </div>
+            <div
+              className="pref"
+              style={{opacity: 0.4 + this.props.clean * 0.3}}
+              onClick={this.props.clickClean}
+            >
+              <p>Clean</p>
+              {this.props.clean}
+            </div>
+            <div
+              className="pref"
+              style={{opacity: 0.4 + this.props.stay * 0.3}}
+            >
+              <p>Stay</p>
+              {this.props.stay}
+            </div>
+            <div
+              className="pref"
+              style={{opacity: 0.4 + this.props.staff * 0.3}}
+            >
+              <p>Staff</p>
+              {this.props.staff}
+            </div>
+            <div
+              className="pref"
+              style={{opacity: 0.4 + this.props.service * 0.3}}
+            >
+              <p>Service</p>
+              {this.props.service}
+            </div>
+            <div
+              className="pref"
+              style={{opacity: 0.4 + this.props.comfortable * 0.3}}
+            >
+              <p>Comfortable</p>
+              {this.props.comfortable}
+            </div>
+            <div
+              className="pref"
+              style={{opacity: 0.4 + this.props.station * 0.3}}
+            >
+              <p>Station</p>
+              {this.props.station}
+            </div>
+          </div>
+          <div className="calc" onClick={this.props.reset}>
+            Reset
+          </div>
+          <p className="desc">
+            This data is supposed to be extracted from browsing histories of users, but for simplicity in this sample site, I decided to ask for input from users directly
+          </p>
+        </Modal>
+      </div>
+    );
+  }
+}

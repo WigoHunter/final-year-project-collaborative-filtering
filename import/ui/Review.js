@@ -2,31 +2,12 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Link } from 'react-router';
 import { createContainer } from 'meteor/react-meteor-data';
-import { Modal } from './Modal.js';
+import { Modal, UserPreferenceControl } from './Modal.js';
+import { HolidayInn } from './Hotels.js';
 
 import { Reviews, AllReviews } from '../api/reviews.js';
 
-export const ignore = ["and", "the", "to", "back", "before", "after", "a", "an", "of", "for", "as", "i", "with", "it", "is", "on", "that", "this", "can", "in", "be", "has", "have", "if", "we", "are", "am", "is", "they", "he", "she", "there", "was", "you", "not", "many", "although", "though", "even", "very", "really", "would", "will", "cant", "can't", "won't", "wont", "-", "at", "under", "over", "but", "also", "via", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0"];
-
-export class HolidayInn extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-
-  render() {
-    return (
-      <div className="head">
-        <img src="http://r-ec.bstatic.com/images/hotel/840x460/137/13767830.jpg" alt="" />
-        <div className="intro">
-          <h2>Holiday Inn Express</h2>
-          <h3>83 Jervois Street, Sheung Wan, Hong Kong 00000, China</h3>
-          <h3>00 1 877-859-5095</h3>
-          <h4>The data is collected from TripAdvisor</h4>
-        </div>
-      </div>
-    );
-  }
-}
+export const ignore = ["and", "the", "to", "back", "before", "after", "a", "an", "of", "for", "as", "i", "with", "it", "is", "on", "that", "this", "can", "in", "be", "has", "have", "if", "we", "are", "am", "is", "they", "he", "she", "there", "was", "you", "not", "many", "although", "though", "even", "very", "really", "would", "will", "cant", "can't", "won't", "wont", "-", "at", "under", "over", "but", "also", "via", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "good", "from", "great", "hong", "kong", "nice", "were", "had", "stayed", "here", "so", "excellent", "our", "well", "all", "my", "rooms"];
 
 export class ReviewList extends React.Component {
   constructor(props) {
@@ -34,11 +15,6 @@ export class ReviewList extends React.Component {
 
     this.state = {
       modalOpen: false,
-      hotel: 0,
-      location: 0,
-      room: 0,
-      breakfast: 0,
-      clean: 0,
     }
   }
 
@@ -103,7 +79,7 @@ export class ReviewList extends React.Component {
       }
     }
 
-    const totalDoc = Reviews.find({}).fetch().length + 80; //80 is the origin size of dataset
+    const totalDoc = Reviews.find({}).fetch().length + 100; //80 is the origin size of dataset
 
     //score formula: word frequency * log (total documents / documents with the word)
     for(let i = 0; i < analysis.length; i++) {
@@ -127,12 +103,6 @@ export class ReviewList extends React.Component {
     ReactDOM.findDOMNode(this.refs.title).value = '';
   }
 
-  showKeywords(analysis) {
-    console.log(analysis[0]);
-    console.log(analysis[1]);
-    console.log(analysis[2]);
-  }
-
   handleClick() {
     this.setState({openModal: true});
   }
@@ -142,42 +112,43 @@ export class ReviewList extends React.Component {
   }
 
   clickHotal() {
-    if(this.state.hotel < 2){
-      this.setState({hotel: this.state.hotel + 1});
-    }
+
   }
 
   clickRoom() {
-    if(this.state.room < 2){
-      this.setState({room: this.state.room + 1});
-    }
+
   }
 
   clickClean() {
-    if(this.state.clean < 2){
-      this.setState({clean: this.state.clean + 1});
-    }
+
   }
 
   clickLocation() {
-    if(this.state.location < 2){
-      this.setState({location: this.state.location + 1});
-    }
+    Meteor.call('user.updateLocation', this.props.user._id, 2);
   }
 
   clickBreakfast() {
-    if(this.state.breakfast < 2){
-      this.setState({breakfast: this.state.breakfast + 1});
-    }
+
   }
 
   reset() {
-    this.setState({
-      hotel: 0,
-      location: 0,
-      room: 0,
-      breakfast: 0,
-      clean: 0,
+    console.log(this.props.user);
+
+    Meteor.users.update(Meteor.userId(), {
+      $set: {
+        preference: {
+          hotel: 0,
+          location: 0,
+          clean: 0,
+          breakfast: 0,
+          room: 0,
+          stay: 0,
+          staff: 0,
+          service: 0,
+          comfortable: 0,
+          station: 0,
+        }
+      }
     });
   }
 
@@ -189,51 +160,66 @@ export class ReviewList extends React.Component {
     let cleanScore = analysis.find((a) => (a.word === 'clean')) ? analysis.find((a) => (a.word === 'clean')).score : 0;
     let breakfastScore = analysis.find((a) => (a.word === 'breakfast')) ? analysis.find((a) => (a.word === 'breakfast')).score : 0;
     let roomScore = analysis.find((a) => (a.word === 'room')) ? analysis.find((a) => (a.word === 'room')).score : 0;
+    let stayScore = analysis.find((a) => (a.word === 'stay')) ? analysis.find((a) => (a.word === 'stay')).score : 0;
+    let staffScore = analysis.find((a) => (a.word === 'staff')) ? analysis.find((a) => (a.word === 'staff')).score : 0;
+    let serviceScore = analysis.find((a) => (a.word === 'service')) ? analysis.find((a) => (a.word === 'service')).score : 0;
+    let comfortableScore = analysis.find((a) => (a.word === 'comfortable')) ? analysis.find((a) => (a.word === 'comfortable')).score : 0;
+    let stationScore = analysis.find((a) => (a.word === 'station')) ? analysis.find((a) => (a.word === 'station')).score : 0;
+    // this.setState({
+    //   hotel: this.state.hotel + hotelScore,
+    //   location: this.state.location + locationScore,
+    //   clean: this.state.clean + cleanScore,
+    //   breakfast: this.state.breakfast + breakfastScore,
+    //   room: this.state.room + roomScore,
+    // });
 
-    this.setState({
-      hotel: this.state.hotel + hotelScore,
-      location: this.state.location + locationScore,
-      clean: this.state.clean + cleanScore,
-      breakfast: this.state.breakfast + breakfastScore,
-      room: this.state.room + roomScore,
+    Meteor.users.update(Meteor.userId(), {
+      $set: {
+        preference: {
+          hotel: this.props.user.preference.hotel + hotelScore,
+          location: this.props.user.preference.location + locationScore,
+          clean: this.props.user.preference.clean + cleanScore,
+          breakfast: this.props.user.preference.breakfast + breakfastScore,
+          room: this.props.user.preference.room + roomScore,
+          stay: this.props.user.preference.stay + stayScore,
+          staff: this.props.user.preference.staff + staffScore,
+          service: this.props.user.preference.service + serviceScore,
+          comfortable: this.props.user.preference.comfortable + comfortableScore,
+          station: this.props.user.preference.station + stationScore,
+        }
+      }
     });
   }
 
   render() {
     let reviews = this.props.reviews.filter((a) => (a.for === location.pathname.split("/")[2]));
+
     for(let i = 0; i < reviews.length; i++){
       let location = reviews[i].analysis.find((a) => (a.word === 'location')) ? reviews[i].analysis.find((a) => (a.word === 'location')).score : 0;
       let hotel = reviews[i].analysis.find((a) => (a.word === 'hotel')) ? reviews[i].analysis.find((a) => (a.word === 'hotel')).score : 0;
       let clean = reviews[i].analysis.find((a) => (a.word === 'clean')) ? reviews[i].analysis.find((a) => (a.word === 'clean')).score : 0;
       let breakfast = reviews[i].analysis.find((a) => (a.word === 'breakfast')) ? reviews[i].analysis.find((a) => (a.word === 'breakfast')).score : 0;
       let room = reviews[i].analysis.find((a) => (a.word === 'room')) ? reviews[i].analysis.find((a) => (a.word === 'room')).score : 0;
-      reviews[i].score = this.state.location * location + this.state.hotel * hotel
-        + this.state.clean * clean + this.state.breakfast * breakfast + this.state.room * room;
+      let stay = reviews[i].analysis.find((a) => (a.word === 'stay')) ? reviews[i].analysis.find((a) => (a.word === 'stay')).score : 0;
+      let staff = reviews[i].analysis.find((a) => (a.word === 'staff')) ? reviews[i].analysis.find((a) => (a.word === 'staff')).score : 0;
+      let service = reviews[i].analysis.find((a) => (a.word === 'service')) ? reviews[i].analysis.find((a) => (a.word === 'service')).score : 0;
+      let comfortable = reviews[i].analysis.find((a) => (a.word === 'comfortable')) ? reviews[i].analysis.find((a) => (a.word === 'comfortable')).score : 0;
+      let station = reviews[i].analysis.find((a) => (a.word === 'station')) ? reviews[i].analysis.find((a) => (a.word === 'station')).score : 0;
+      reviews[i].score = this.props.user.preference.location * location + this.props.user.preference.hotel * hotel
+        + this.props.user.preference.clean * clean + this.props.user.preference.breakfast * breakfast + this.props.user.preference.room * room
+        + this.props.user.preference.stay * stay + this.props.user.preference.staff * staff + this.props.user.preference.service * service
+        + this.props.user.preference.comfortable * comfortable + this.props.user.preference.station * station;
     }
     reviews.sort((a, b) => ( b.score - a.score ));
 
     return (
       <div className="reviews-container">
 
-        {React.cloneElement(this.props.children, { test: "test" })}
-
-        <div className="review-wrap">
-          <ul>
-            <h2>
-              Customer Reviews
-              <span className="btn" onClick={this.handleClick.bind(this)}>Fake Account</span>
-            </h2>
-            {reviews.map((review) => (
-              <Review
-                text={review.text}
-                title={review.title}
-                analysis={review.analysis}
-                score={review.score}
-                onClick={this.onClickReview.bind(this)}
-              />
-            ))}
-          </ul>
-        </div>
+        {React.cloneElement(this.props.children, {
+          reviews: reviews,
+          handleClick: this.handleClick.bind(this),
+          onClickReview: this.onClickReview.bind(this),
+        })}
 
         <form onSubmit={this.handleSubmit.bind(this)}>
           <div className="line"></div>
@@ -243,10 +229,6 @@ export class ReviewList extends React.Component {
             ref="title"
             placeholder="Title"
           />
-          <input
-            type="text"
-            ref="target"
-          />
           <textarea
             ref="review"
             placeholder="Anything specific?"
@@ -254,58 +236,26 @@ export class ReviewList extends React.Component {
           <input type="submit" />
         </form>
 
-        <Modal open={this.state.openModal}>
-          <span className="close" onClick={this.handleClose.bind(this)}>＋</span>
-          <h2>User Behavior</h2>
-          <div>
-            <div
-              className="pref"
-              style={{opacity: 0.4 + this.state.hotel * 0.3}}
-              onClick={this.clickHotal.bind(this)}
-            >
-              <p>Hotel</p>
-              {this.state.hotel}
-            </div>
-            <div
-              className="pref"
-              style={{opacity: 0.4 + this.state.location * 0.3}}
-              onClick={this.clickLocation.bind(this)}
-            >
-              <p>Location</p>
-              {this.state.location}
-            </div>
-            <div
-              className="pref"
-              style={{opacity: 0.4 + this.state.room * 0.3}}
-              onClick={this.clickRoom.bind(this)}
-            >
-              <p>Room</p>
-              {this.state.room}
-            </div>
-            <div
-              className="pref"
-              style={{opacity: 0.4 + this.state.breakfast * 0.3}}
-              onClick={this.clickBreakfast.bind(this)}
-            >
-              <p>Breakfast</p>
-              {this.state.breakfast}
-            </div>
-            <div
-              className="pref"
-              style={{opacity: 0.4 + this.state.clean * 0.3}}
-              onClick={this.clickClean.bind(this)}
-            >
-              <p>Clean</p>
-              {this.state.clean}
-            </div>
-          </div>
-          <div className="calc" onClick={this.reset.bind(this)}>
-            Reset
-          </div>
-          <p className="desc">
-            This data is supposed to be extracted from browsing histories of users, but for simplicity in this sample site, I decided to ask for input from users directly
-          </p>
-        </Modal>
+        <UserPreferenceControl
+          openModal={this.state.openModal}
+          handleClose={this.handleClose.bind(this)}
+          hotel={this.props.user ? this.props.user.preference ? this.props.user.preference.hotel : 0 : 0}
+          location={this.props.user ? this.props.user.preference ? this.props.user.preference.location : 0 : 0}
+          room={this.props.user ? this.props.user.preference ? this.props.user.preference.room : 0 : 0}
+          breakfast={this.props.user ? this.props.user.preference ? this.props.user.preference.breakfast : 0 : 0}
+          clean={this.props.user ? this.props.user.preference ? this.props.user.preference.clean : 0 : 0}
+          stay={this.props.user ? this.props.user.preference ? this.props.user.preference.stay : 0 : 0}
+          staff={this.props.user ? this.props.user.preference ? this.props.user.preference.staff : 0 : 0}
+          service={this.props.user ? this.props.user.preference ? this.props.user.preference.service : 0 : 0}
+          comfortable={this.props.user ? this.props.user.preference ? this.props.user.preference.comfortable : 0 : 0}
+          station={this.props.user ? this.props.user.preference ? this.props.user.preference.station : 0 : 0}
+          clickHotal={this.clickHotal.bind(this)}
+          clickLocation={this.clickLocation.bind(this)}
+          clickRoom={this.clickRoom.bind(this)}
+          clickBreakfast={this.clickBreakfast.bind(this)}
+          clickClean={this.clickClean.bind(this)}
+          reset={this.reset.bind(this)}
+        />
       </div>
     );
   }
@@ -316,13 +266,68 @@ ReviewList.propTypes = {
 };
 
 export const ReviewListContainer = createContainer(() => {
+  Meteor.subscribe('userData');
+  Meteor.subscribe('reviews');
+  Meteor.subscribe('allreviews');
+
+  let user = Meteor.users.findOne({ _id: Meteor.userId() });
+  let others = Meteor.users.find().fetch().filter((a) => (a._id != Meteor.userId()));
+
+  let similarities = [];
+
+  if(others && user) {
+    for(let i = 0; i < others.length; i++) {
+      let current = others[i];
+      let sumOfShared = 0, sumOfUser = 0, sumOfOther = 0;
+      for(let j in user.preference) {
+        if((user.preference[j] * current.preference[j]) != 0) {
+          sumOfShared += user.preference[j] * current.preference[j];
+        }
+        sumOfUser += user.preference[j] * user.preference[j];
+        sumOfOther += current.preference[j] * current.preference[j];
+      }
+
+      if(sumOfUser == 0) {
+        similarities.push({
+          target: current._id,
+          cos: 0,
+        });
+      } else {
+        similarities.push({
+          target: current._id,
+          cos: sumOfShared / (Math.sqrt(sumOfUser) * Math.sqrt(sumOfOther)),
+        });
+      }
+    }
+  }
+
+  console.log(similarities);
+
+  if(user) {
+    for (let i in user.preference) {
+      if(user.preference[i] == 0){
+        let prediction = 0;
+        let totalCos = 0;
+
+        for(let j = 0; j < others.length; j++) {
+          let sim = similarities.find((a) => (a.target === others[j]._id)).cos;
+          prediction += sim * others[j].preference[i];
+          if(others[j].preference[i] != 0)  totalCos += sim;
+        }
+        if( totalCos != 0)
+          user.preference[i] = prediction / totalCos;
+      }
+    }
+  }
+
   return {
     reviews: Reviews.find({}).fetch(),
     all: AllReviews.find({}).fetch(),
+    user: user,
   }
 }, ReviewList);
 
-const Review = ({ text, title, analysis, score, onClick }) => (
+export const Review = ({ text, title, analysis, score, onClick }) => (
   <li>
     <h4 onClick={() => onClick(analysis)}>{title}</h4>
     <div className="line"></div>
