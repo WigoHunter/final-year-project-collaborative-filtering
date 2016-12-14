@@ -22,6 +22,7 @@ if (Meteor.isServer) {
   Meteor.publish('userData', () => {
     return Meteor.users.find({}, {fields: {
       'preference': 1,
+      'liked': 1,
     }});
   });
 }

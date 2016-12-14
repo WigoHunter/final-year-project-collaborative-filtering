@@ -29,6 +29,8 @@ export class HolidayInn extends React.Component {
             {this.props.reviews.map((review, i) => (
               <Review
                 key={i}
+                reviewId={review._id}
+                liked={this.props.likedHistory.find((a) => (a === review._id)) ? true : false}
                 text={review.text}
                 title={review.title}
                 analysis={review.analysis}
@@ -69,6 +71,8 @@ export class ShangriLa extends React.Component {
             {this.props.reviews.map((review, i) => (
               <Review
                 key={i}
+                reviewId={review._id}
+                liked={this.props.likedHistory.find((a) => (a === review._id)) ? true : false}
                 text={review.text}
                 title={review.title}
                 analysis={review.analysis}

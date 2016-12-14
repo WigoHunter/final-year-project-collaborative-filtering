@@ -18,6 +18,8 @@ Meteor.startup(() => {
       station: 0,
     };
 
+    user.liked = [];
+
     return user;
   });
 });

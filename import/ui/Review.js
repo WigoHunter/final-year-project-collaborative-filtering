@@ -9,6 +9,33 @@ import { Reviews, AllReviews } from '../api/reviews.js';
 
 export const ignore = ["and", "the", "to", "back", "before", "after", "a", "an", "of", "for", "as", "i", "with", "it", "is", "on", "that", "this", "can", "in", "be", "has", "have", "if", "we", "are", "am", "is", "they", "he", "she", "there", "was", "you", "not", "many", "although", "though", "even", "very", "really", "would", "will", "cant", "can't", "won't", "wont", "-", "at", "under", "over", "but", "also", "via", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "good", "from", "great", "hong", "kong", "nice", "were", "had", "stayed", "here", "so", "excellent", "our", "well", "all", "my", "rooms"];
 
+const normalizeData = data => {
+  let mean = 0, count = 0;
+
+  for (let i in data) {
+    mean += data[i];
+    count++;
+  }
+
+  mean /= count;
+
+  let variance = 0;
+
+  for (let j in data) {
+    let temp = data[j] - mean;
+    variance += (temp * temp);
+  }
+
+  variance /= count;
+  variance = Math.sqrt(variance);
+
+  for (let k in data) {
+    data[k] = (data[k] - mean) / variance;
+  }
+
+  return data;
+}
+
 export class ReviewList extends React.Component {
   constructor(props) {
     super(props);
@@ -29,7 +56,10 @@ export class ReviewList extends React.Component {
     const used = text + " " + title + " " + title;
 
     //Get all words used
-    const words = used.toLowerCase().trim().replace(/[,;.!?():-^&$#*+=@><_]/g, '').split(/[\s\/]+/g).sort();
+    const words = used.toLowerCase().trim()
+      .replace(/[,;.!?():-^&$#*+=@><_]/g, '')
+      .split(/[\s\/]+/g)
+      .sort();
     //console.log(words);
 
     let analysis = [];
@@ -40,14 +70,12 @@ export class ReviewList extends React.Component {
       while(ignore.indexOf(words[i]) != -1 && i < words.length) {
         i++;
       }
-
       //count word frequency
       let count = 1;
       while(words[i+1] === words[i] && i < words.length) {
         count++;
         i++;
       }
-
       //push to analysis
       if(words[i]) {
         analysis.push({
@@ -57,6 +85,7 @@ export class ReviewList extends React.Component {
         });
       }
 
+      console.log(analysis);
       //calc word count
       wc += count;
 
@@ -79,7 +108,7 @@ export class ReviewList extends React.Component {
       }
     }
 
-    const totalDoc = Reviews.find({}).fetch().length + 100; //80 is the origin size of dataset
+    const totalDoc = Reviews.find({}).fetch().length + 100; //100 is the origin size of dataset
 
     //score formula: word frequency * log (total documents / documents with the word)
     for(let i = 0; i < analysis.length; i++) {
@@ -124,7 +153,7 @@ export class ReviewList extends React.Component {
   }
 
   clickLocation() {
-    Meteor.call('user.updateLocation', this.props.user._id, 2);
+
   }
 
   clickBreakfast() {
@@ -147,13 +176,13 @@ export class ReviewList extends React.Component {
           service: 0,
           comfortable: 0,
           station: 0,
-        }
+        },
+        liked: [],
       }
     });
   }
 
-  onClickReview(analysis) {
-    console.log('hit');
+  onClickReview(analysis, key) {
 
     let locationScore = analysis.find((a) => (a.word === 'location')) ? analysis.find((a) => (a.word === 'location')).score : 0;
     let hotelScore = analysis.find((a) => (a.word === 'hotel')) ? analysis.find((a) => (a.word === 'hotel')).score : 0;
@@ -165,58 +194,31 @@ export class ReviewList extends React.Component {
     let serviceScore = analysis.find((a) => (a.word === 'service')) ? analysis.find((a) => (a.word === 'service')).score : 0;
     let comfortableScore = analysis.find((a) => (a.word === 'comfortable')) ? analysis.find((a) => (a.word === 'comfortable')).score : 0;
     let stationScore = analysis.find((a) => (a.word === 'station')) ? analysis.find((a) => (a.word === 'station')).score : 0;
-    // this.setState({
-    //   hotel: this.state.hotel + hotelScore,
-    //   location: this.state.location + locationScore,
-    //   clean: this.state.clean + cleanScore,
-    //   breakfast: this.state.breakfast + breakfastScore,
-    //   room: this.state.room + roomScore,
-    // });
 
-    Meteor.users.update(Meteor.userId(), {
-      $set: {
-        preference: {
-          hotel: this.props.user.preference.hotel + hotelScore,
-          location: this.props.user.preference.location + locationScore,
-          clean: this.props.user.preference.clean + cleanScore,
-          breakfast: this.props.user.preference.breakfast + breakfastScore,
-          room: this.props.user.preference.room + roomScore,
-          stay: this.props.user.preference.stay + stayScore,
-          staff: this.props.user.preference.staff + staffScore,
-          service: this.props.user.preference.service + serviceScore,
-          comfortable: this.props.user.preference.comfortable + comfortableScore,
-          station: this.props.user.preference.station + stationScore,
-        }
-      }
-    });
+    const data = {
+      hotel: hotelScore,
+      location: locationScore,
+      clean: cleanScore,
+      breakfast: breakfastScore,
+      room: roomScore,
+      stay: stayScore,
+      staff: staffScore,
+      service: serviceScore,
+      comfortable: comfortableScore,
+      station: stationScore,
+    };
+
+    Meteor.call('user.updatePref', this.props.user._id, data);
+    Meteor.call('user.updateLiked', this.props.user._id, key);
   }
 
   render() {
-    let reviews = this.props.reviews.filter((a) => (a.for === location.pathname.split("/")[2]));
-
-    for(let i = 0; i < reviews.length; i++){
-      let location = reviews[i].analysis.find((a) => (a.word === 'location')) ? reviews[i].analysis.find((a) => (a.word === 'location')).score : 0;
-      let hotel = reviews[i].analysis.find((a) => (a.word === 'hotel')) ? reviews[i].analysis.find((a) => (a.word === 'hotel')).score : 0;
-      let clean = reviews[i].analysis.find((a) => (a.word === 'clean')) ? reviews[i].analysis.find((a) => (a.word === 'clean')).score : 0;
-      let breakfast = reviews[i].analysis.find((a) => (a.word === 'breakfast')) ? reviews[i].analysis.find((a) => (a.word === 'breakfast')).score : 0;
-      let room = reviews[i].analysis.find((a) => (a.word === 'room')) ? reviews[i].analysis.find((a) => (a.word === 'room')).score : 0;
-      let stay = reviews[i].analysis.find((a) => (a.word === 'stay')) ? reviews[i].analysis.find((a) => (a.word === 'stay')).score : 0;
-      let staff = reviews[i].analysis.find((a) => (a.word === 'staff')) ? reviews[i].analysis.find((a) => (a.word === 'staff')).score : 0;
-      let service = reviews[i].analysis.find((a) => (a.word === 'service')) ? reviews[i].analysis.find((a) => (a.word === 'service')).score : 0;
-      let comfortable = reviews[i].analysis.find((a) => (a.word === 'comfortable')) ? reviews[i].analysis.find((a) => (a.word === 'comfortable')).score : 0;
-      let station = reviews[i].analysis.find((a) => (a.word === 'station')) ? reviews[i].analysis.find((a) => (a.word === 'station')).score : 0;
-      reviews[i].score = this.props.user.preference.location * location + this.props.user.preference.hotel * hotel
-        + this.props.user.preference.clean * clean + this.props.user.preference.breakfast * breakfast + this.props.user.preference.room * room
-        + this.props.user.preference.stay * stay + this.props.user.preference.staff * staff + this.props.user.preference.service * service
-        + this.props.user.preference.comfortable * comfortable + this.props.user.preference.station * station;
-    }
-    reviews.sort((a, b) => ( b.score - a.score ));
-
     return (
       <div className="reviews-container">
 
         {React.cloneElement(this.props.children, {
-          reviews: reviews,
+          reviews: this.props.reviews,
+          likedHistory: this.props.user ? this.props.user.liked ? this.props.user.liked : [] : [],
           handleClick: this.handleClick.bind(this),
           onClickReview: this.onClickReview.bind(this),
         })}
@@ -249,11 +251,6 @@ export class ReviewList extends React.Component {
           service={this.props.user ? this.props.user.preference ? this.props.user.preference.service : 0 : 0}
           comfortable={this.props.user ? this.props.user.preference ? this.props.user.preference.comfortable : 0 : 0}
           station={this.props.user ? this.props.user.preference ? this.props.user.preference.station : 0 : 0}
-          clickHotal={this.clickHotal.bind(this)}
-          clickLocation={this.clickLocation.bind(this)}
-          clickRoom={this.clickRoom.bind(this)}
-          clickBreakfast={this.clickBreakfast.bind(this)}
-          clickClean={this.clickClean.bind(this)}
           reset={this.reset.bind(this)}
         />
       </div>
@@ -270,6 +267,8 @@ export const ReviewListContainer = createContainer(() => {
   Meteor.subscribe('reviews');
   Meteor.subscribe('allreviews');
 
+
+  //User Data
   let user = Meteor.users.findOne({ _id: Meteor.userId() });
   let others = Meteor.users.find().fetch().filter((a) => (a._id != Meteor.userId()));
 
@@ -301,10 +300,9 @@ export const ReviewListContainer = createContainer(() => {
     }
   }
 
-  console.log(similarities);
-
   if(user) {
     for (let i in user.preference) {
+      //predict the unknown data
       if(user.preference[i] == 0){
         let prediction = 0;
         let totalCos = 0;
@@ -314,26 +312,77 @@ export const ReviewListContainer = createContainer(() => {
           prediction += sim * others[j].preference[i];
           if(others[j].preference[i] != 0)  totalCos += sim;
         }
-        if( totalCos != 0)
+        if(totalCos != 0)
           user.preference[i] = prediction / totalCos;
       }
     }
   }
 
+  if(user) {
+    normalizeData(user.preference);
+    console.log(user.preference);
+  }
+
+  //Review Data
+  let reviews = Reviews.find().fetch().filter((a) => (a.for === location.pathname.split("/")[2]));
+
+  if(reviews) {
+    for(let i = 0; i < reviews.length; i++){
+      let location = reviews[i].analysis.find((a) => (a.word === 'location')) ? reviews[i].analysis.find((a) => (a.word === 'location')).score : 0;
+      let hotel = reviews[i].analysis.find((a) => (a.word === 'hotel')) ? reviews[i].analysis.find((a) => (a.word === 'hotel')).score : 0;
+      let clean = reviews[i].analysis.find((a) => (a.word === 'clean')) ? reviews[i].analysis.find((a) => (a.word === 'clean')).score : 0;
+      let breakfast = reviews[i].analysis.find((a) => (a.word === 'breakfast')) ? reviews[i].analysis.find((a) => (a.word === 'breakfast')).score : 0;
+      let room = reviews[i].analysis.find((a) => (a.word === 'room')) ? reviews[i].analysis.find((a) => (a.word === 'room')).score : 0;
+      let stay = reviews[i].analysis.find((a) => (a.word === 'stay')) ? reviews[i].analysis.find((a) => (a.word === 'stay')).score : 0;
+      let staff = reviews[i].analysis.find((a) => (a.word === 'staff')) ? reviews[i].analysis.find((a) => (a.word === 'staff')).score : 0;
+      let service = reviews[i].analysis.find((a) => (a.word === 'service')) ? reviews[i].analysis.find((a) => (a.word === 'service')).score : 0;
+      let comfortable = reviews[i].analysis.find((a) => (a.word === 'comfortable')) ? reviews[i].analysis.find((a) => (a.word === 'comfortable')).score : 0;
+      let station = reviews[i].analysis.find((a) => (a.word === 'station')) ? reviews[i].analysis.find((a) => (a.word === 'station')).score : 0;
+
+      let sumOfReview = location * location + hotel * hotel + clean * clean + breakfast * breakfast
+          + room * room + stay * stay + staff * staff + service * service + comfortable * comfortable
+          + station * station;
+
+      let sumOfUser = user.preference.location * user.preference.location
+      + user.preference.hotel * user.preference.hotel + user.preference.clean * user.preference.clean
+      + user.preference.breakfast * user.preference.breakfast + user.preference.room * user.preference.room
+      + user.preference.stay * user.preference.stay + user.preference.staff * user.preference.staff
+      + user.preference.service * user.preference.service + user.preference.comfortable * user.preference.comfortable
+      + user.preference.station * user.preference.station;
+
+      reviews[i].score = sumOfUser == 0 ? 0 : (user.preference.location * location
+        + user.preference.hotel * hotel
+        + user.preference.clean * clean
+        + user.preference.breakfast * breakfast
+        + user.preference.room * room
+        + user.preference.stay * stay
+        + user.preference.staff * staff
+        + user.preference.service * service
+        + user.preference.comfortable * comfortable
+        + user.preference.station * station) / (Math.sqrt(sumOfUser) * Math.sqrt(sumOfReview));
+
+    }
+    reviews.sort((a, b) => ( b.score - a.score ));
+  }
+
+
   return {
-    reviews: Reviews.find({}).fetch(),
+    reviews: reviews,
     all: AllReviews.find({}).fetch(),
     user: user,
   }
 }, ReviewList);
 
-export const Review = ({ text, title, analysis, score, onClick }) => (
+export const Review = ({ reviewId, liked, text, title, analysis, score, onClick }) => (
   <li>
-    <h4 onClick={() => onClick(analysis)}>{title}</h4>
+    <h4>{title}</h4>
+    <span className={liked ? "like-btn reverse" : "like-btn"} onClick={() => onClick(analysis, reviewId)}>
+      {liked ? "Liked" : "Like"}
+    </span>
     <div className="line"></div>
     <p>{text}</p>
     <h5>
-      Keywords: {analysis[0].word}, {analysis[1].word}, {analysis[2].word}, {analysis[3].word}, {analysis[4].word}
+      // for debugging purpose
       <div>
         Score: {score}
       </div>

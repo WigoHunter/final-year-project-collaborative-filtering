@@ -1,3 +1,4 @@
+
 /* CSS declarations go here */
 @import url('https://fonts.googleapis.com/css?family=Open+Sans:400,600,700');
 
@@ -35,6 +36,7 @@ a {
   align-items: center;
   padding: 0 5%;
   justify-content: space-between;
+  box-shadow: 0 0 8px 0 rgba(0,0,0,.2);
 }
 
 .navi h3 {
@@ -230,15 +232,16 @@ form input[type='submit'] {
 .review-wrap ul li {
   list-style: none;
   background-color: #FFF;
-  box-shadow: 3px 3px 3px 3px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.2);
   padding: 20px 30px;
   margin: 30px 0;
   width: calc(100% - 140px);
   transition: all 0.3s ease;
+  position: relative;
 }
 
 .review-wrap ul li:hover {
-  box-shadow: 3px 3px 5px 3px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 0 8px 0 rgba(0, 0, 0, 0.4);
   transform: scale(1.01);
 }
 
@@ -426,4 +429,27 @@ form input[type='submit'] {
   margin: 2px 0;
   font-weight: normal;
   font-size: 16px;
+}
+
+.like-btn {
+  float: right;
+  position: absolute;
+  top: 12%;
+  right: 3%;
+  width: 70px;
+  height: 25px;
+  background-color: #EEE;
+  color: var(--blue);
+  border-radius: 3px;
+  box-shadow: 0 0 8px 0 rgba(0,0,0,.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.like-btn.reverse {
+  background-color: var(--blue);
+  color: #EEE;
 }
