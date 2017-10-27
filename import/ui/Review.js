@@ -140,26 +140,6 @@ export class ReviewList extends React.Component {
     this.setState({openModal: false});
   }
 
-  clickHotal() {
-
-  }
-
-  clickRoom() {
-
-  }
-
-  clickClean() {
-
-  }
-
-  clickLocation() {
-
-  }
-
-  clickBreakfast() {
-
-  }
-
   reset() {
     console.log(this.props.user);
 
